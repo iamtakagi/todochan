@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  db:
+    container_name: todochan_db
+    hostname: todochan_db
+    restart: unless-stopped
+    image: mysql:latest
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/initdb.d:/docker-entrypoint-initdb.d
+      - ./db/conf.d:/etc/mysql/conf.d
+    environment:
+        TZ: 'Asia/Tokyo'
+        MYSQL_ROOT_PASSWORD: 'todochan'
+    networks:
+      - db
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      TZ: 'Asia/Tokyo'
+    networks:
+      - db
+    depends_on:
+      - db
+
+networks:
+  db:
